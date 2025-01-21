@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register and Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .toggle-btn {
+            background-color: #6c757d;
+            border: none;
+            margin-top: 10px;
+            width: 100px;
+        }
+
+        .toggle-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .message {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+        #register-section{
+            margin: 20px;
+        }
+        #login-section{
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Registration Section -->
+        <div id="register-section">
+            <h1>Register</h1>
+            <form id="register-form">
+                <input type="text" id="register-username" placeholder="email" required />
+                <input type="password" id="register-password" placeholder="Password" required />
+                <input type="text" id="register-role" placeholder="Role (e.g., admin)" required />
+                <button type="submit">Register</button>
+            </form>
+            <button class="toggle-btn" id="show-login">Login</button>
+            <p id="register-message" class="message"></p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section" style="display: none;">
+            <h1>Login</h1>
+            <form id="login-form">
+                <input type="text" id="login-username" placeholder="Login email" required />
+                <input type="password" id="login-password" placeholder="Login Password" required />
+                <input type="text" id="login-role" placeholder="Role" required />
+                <button type="submit">Login</button>
+            </form>
+            <button class="toggle-btn" id="show-register">Register</button>
+            <p id="login-message" class="message"></p>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between Register and Login Sections
+        const registerSection = document.getElementById('register-section');
+        const loginSection = document.getElementById('login-section');
+        const showLoginBtn = document.getElementById('show-login');
+        const showRegisterBtn = document.getElementById('show-register');
+
+        showLoginBtn.addEventListener('click', () => {
+            registerSection.style.display = 'none';
+            loginSection.style.display = 'block';
+        });
+
+        showRegisterBtn.addEventListener('click', () => {
+            loginSection.style.display = 'none';
+            registerSection.style.display = 'block';
+        });
+
+        // Handle Register Form Submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const user = {
+                email: document.getElementById('register-username').value,
+                password: document.getElementById('register-password').value,
+                role: document.getElementById('register-role').value,
+            };
+
+            try {
+                const response = await fetch('http://localhost:4050/reg', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(user),
+                });
+
+                const message = await response.text();
+                const registerMessage = document.getElementById('register-message');
+               console.log(response);
+               
+                
+                if (response.ok) {
+                    registerMessage.textContent = 'Registration successful!';
+                    registerMessage.className = 'message success';
+                } else {
+                    registerMessage.textContent = message;
+                    registerMessage.className = 'message error';
+                }
+            } catch (error) {
+                const registerMessage = document.getElementById('register-message');
+                registerMessage.textContent = `Error during registration: ${error.message}`;
+                registerMessage.className = 'message error';
+            }
+        });
+
+        // Handle Login Form Submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const user = {
+                email: document.getElementById('login-username').value,
+                password: document.getElementById('login-password').value,
+                role: document.getElementById('login-role').value,
+            };
+
+            try {
+                const response = await fetch('http://localhost:4050/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${token}`
+
+                    },
+                    body: JSON.stringify(user),
+                });
+
+                const message = await response.text();
+                const loginMessage = document.getElementById('login-message');
+                if (response.ok) {
+                    loginMessage.textContent = 'Login successful!';
+                    loginMessage.className = 'message success';
+                } else {
+                    loginMessage.textContent = message.message || 'Invalid credentials!';
+                    loginMessage.className = 'message error';
+                }
+            } catch (error) {
+                const loginMessage = document.getElementById('login-message');
+                loginMessage.textContent = `Error during login: ${error.message}`;
+                loginMessage.className = 'message error';
+            }
+
+        });
+    </script>
+</body>
+</html>
